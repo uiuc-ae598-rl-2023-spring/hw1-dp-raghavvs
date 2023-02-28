@@ -38,14 +38,14 @@ def sarsa(pendulum, alpha=0.1, gamma=0.95, epsilon=0.1, num_episodes=100):
             action = next_action
         returns.append(total_reward)
 
-    policy = np.argmax(q_values, axis=1)
-    return [max(q_values[s]) for s in range(pendulum.num_states)], returns, policy
+    #policy = np.argmax(q_values, axis=1)
+    return [max(q_values[s]) for s in range(pendulum.num_states)], returns
 
-sarsa_returns, policy = sarsa(pendulum, num_episodes=500)
+sarsa_returns = sarsa(pendulum, num_episodes=500)
 
 # Plot 1 - Return vs. Episodes
 num_episodes = 500
-_, returns, _  = sarsa(pendulum, num_episodes=num_episodes)
+_, returns  = sarsa(pendulum, num_episodes=num_episodes)
 plt.plot(range(num_episodes), returns)
 plt.xlabel('Episode')
 plt.ylabel('Return')
@@ -58,7 +58,7 @@ epsilons = [0.1, 0.2, 0.3, 0.4, 0.5]
 num_episodes = 10
 fig, ax = plt.subplots()
 for epsilon in epsilons:
-    _, returns, _ = sarsa(pendulum, epsilon=epsilon, num_episodes=num_episodes)
+    _, returns = sarsa(pendulum, epsilon=epsilon, num_episodes=num_episodes)
     ax.plot(range(num_episodes), returns, label=f'epsilon={epsilon}')
 ax.legend()
 ax.set_xlabel('Episode')
@@ -72,7 +72,7 @@ alphas = [0.1, 0.2, 0.3, 0.4, 0.5]
 num_episodes = 10
 fig, ax = plt.subplots()
 for alpha in alphas:
-    _, returns, _ = sarsa(pendulum, alpha=alpha, num_episodes=num_episodes)
+    _, returns = sarsa(pendulum, alpha=alpha, num_episodes=num_episodes)
     ax.plot(range(num_episodes), returns, label=f'alpha={alpha}')
 ax.legend()
 ax.set_xlabel('Episode')
@@ -81,7 +81,7 @@ ax.set_title('SARSA Learning Curves for Different Alpha Values')
 plt.savefig('figures/pendulum/sarsa_learning_curves_alpha.png')
 #plt.show()
 
-# Plot 4 - Example Trajectories for Different Policies
+""" # Plot 4 - Example Trajectories for Different Policies
 env = discrete_pendulum.Pendulum()
 num_trajectories = 5
 time_steps = 100
@@ -101,7 +101,7 @@ ax.set_xlabel('Time Step')
 ax.set_ylabel('State')
 ax.set_title('Example Trajectories for Different Policies')
 plt.savefig('figures/pendulum/ql_example_trajectories.png')
-#plt.show()
+#plt.show() """
 
 cpu_end_time = time.process_time()
 cpu_time_taken = cpu_end_time - cpu_start_time
@@ -113,6 +113,6 @@ print(f"Processing time: {processing_time:.2f} seconds")
 
 """
 Output:
-CPU time taken:  seconds
-Processing time:  seconds
+CPU time taken: 127.9534 seconds
+Processing time: 134.10 seconds
 """
