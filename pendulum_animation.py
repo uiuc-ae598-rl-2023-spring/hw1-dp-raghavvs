@@ -2,6 +2,10 @@ import random
 import numpy as np
 import scipy.integrate
 
+# Import matplotlib modules for plotting and animation
+import matplotlib.pyplot as plt 
+import matplotlib.animation as animation 
+
 class Pendulum():
     def __init__(self, n_theta=31, n_thetadot=31, n_tau=31):
         # Parameters that describe the physical system
@@ -29,22 +33,19 @@ class Pendulum():
 
         # Number of grid points in each dimension (should be odd, so that there
         # is always one grid point at "0")
-        self.n_theta = n_theta
-        self.n_thetadot = n_thetadot
-        self.n_tau = n_tau
+        self.n_theta = n_theta 
+        self.n_thetadot = n_thetadot 
+        self.n_tau = n_tau 
 
-        # Number of finite states and actions after discretization
-        self.num_states = self.n_theta * self.n_thetadot
-        self.num_actions = self.n_tau
+        # Number of finite states and actions after discretization 
+        self.num_states = self.n_theta * self.n_thetadot 
+        self.num_actions = self.n_tau 
 
-        # Time horizon
-        self.max_num_steps = 100
-
-        # Reset to initial conditions
-        self.reset()
+        # Time horizon 
+        self.max_num_steps = 100 
 
     def _x_to_s(self, x):
-        # Get theta - wrapping to [-pi, pi) - and thetadot
+       # Get theta - wrapping to [-pi, pi) - and thetadot
         theta = ((x[0] + np.pi) % (2 * np.pi)) - np.pi
         thetadot = x[1]
         # Convert to i, j coordinates
@@ -55,14 +56,14 @@ class Pendulum():
         j = max(0, min(self.n_thetadot - 1, j))
         # Convert to state
         return int(i * self.n_thetadot + j)
-
+    
     def _a_to_u(self, a):
         return -self.max_tau + ((2 * self.max_tau * a) / (self.n_tau - 1))
-
+    
     def _dxdt(self, x, u):
         theta_ddot =  (u - self.params['b'] * x[1] + self.params['m'] * self.params['g'] * self.params['l'] * np.sin(x[0])) / (self.params['m'] * self.params['l']**2)
         return np.array([x[1], theta_ddot])
-
+    
     def step(self, a):
         # Verify action is in range
         if not (a in range(self.num_actions)):
@@ -113,6 +114,45 @@ class Pendulum():
 
         return self.s
 
-    def render(self):
-        # TODO (we will happily accept a PR to create a graphic visualization of the pendulum)
-        pass
+# Define a function that calculates the position of the pendulum bob given an angle 
+def get_position(theta): 
+    x = env.params['l'] * np.sin(theta) 
+    y = -env.params['l'] * np.cos(theta) 
+    return x,y 
+
+# Define a function that updates the animation frame by frame 
+def animate(i): 
+    global theta_list 
+    
+    ax.clear() 
+    
+    ax.set_xlim(-env.params['l'] - 0.5 , env.params['l'] + 0.5)  
+    ax.set_ylim(-env.params['l'] - 0.5 , env.params['l'] + 0.5)  
+    
+    theta = theta_list[i] 
+    
+    x,y = get_position(theta) 
+    
+    ax.plot([0,x],[0,y],color='k') 
+    
+    circle=ax.add_patch(plt.Circle((x,y),radius=0.1,color='b')) 
+    
+# Create an environment object  
+env=Pendulum() 
+
+# Create a figure and an axis object with matplotlib.pyplot  
+fig=plt.figure()  
+ax=fig.add_subplot(111)  
+
+# Generate some random angles for demonstration purpose  
+theta_list=np.random.uniform(-np.pi,np.pi,size=100)  
+
+# Create an animation object using matplotlib.animation.FuncAnimation  
+ani=animation.FuncAnimation(fig,
+                            animate,
+                            frames=len(theta_list),
+                            interval=100,
+                            repeat=False)
+
+ani.save('figures/pendulum/pendulum.mp4', writer='ffmpeg')
+plt.show()
