@@ -100,3 +100,9 @@ print(f"CPU time taken: {cpu_time_taken:.4f} seconds")
 end_time = time.time()
 processing_time = end_time - start_time
 print(f"Processing time: {processing_time:.2f} seconds")
+
+"""
+Output:
+CPU time taken: 79.5756 seconds
+Processing time: 110.19 seconds
+"""
