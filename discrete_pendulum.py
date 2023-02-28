@@ -14,6 +14,7 @@ class Pendulum():
 
         # Maximum absolute angular velocity
         self.max_thetadot = 15.0
+        self.max_speed = 8
 
         # Maximum absolute angle to be considered "upright"
         self.max_theta_for_upright = 0.1 * np.pi
