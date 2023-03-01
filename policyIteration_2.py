@@ -71,10 +71,6 @@ V_list, policy, total_iterations, delta_list = pi.train()
 end_time = time.time()
 training_time = end_time - start_time
 
-#print(V_list)
-#print(delta_list)
-
-# Plot 
 fig, ax = plt.subplots()
 for i, V in enumerate(V_list):
     ax.plot(np.arange(env.num_states), V, label=f"iteration {i+1}")
@@ -86,20 +82,3 @@ plt.show()
 
 print(f'Total training time: {training_time:.2f} seconds')
 print(f'Total number of iterations: {total_iterations}')
-
-"""
-Output:
-V = 
-[41.99469264 44.20493963 41.99469264 39.20493963 37.24469264 39.89495801
- 41.99469264 39.89495801 37.90021011 36.00519961 37.90021011 39.89495801
- 37.90021011 36.00519961 34.20493963 36.00519961 37.90021011 36.00519961
- 34.20493963 32.49469264 34.20493963 36.00519961 34.20493963 32.49469264
- 30.86995801]
-
-delta_list = 
-[9.20708931317904e-09, 8.678249230342772e-09, 1.4210854715202004e-14, 
- 7.105427357601002e-15, 7.105427357601002e-15]
-
-----
-Need to verify plot.
-"""
