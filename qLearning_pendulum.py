@@ -33,6 +33,34 @@ def q_learning(env, num_episodes, alpha, gamma, epsilon):
     policy = np.argmax(Q, axis=1)
     return Q, V, policy, returns
 
+def q_learning_TD(env, num_episodes, alpha, gamma, epsilon):
+    Q = np.zeros((env.num_states, env.num_actions))
+
+    returns = []
+    for i in range(num_episodes):
+        s = env.reset()
+        done = False
+        episode_reward = 0
+        while not done:
+            if np.random.uniform() < epsilon:
+                a = np.random.choice(env.num_actions)
+            else:
+                a = np.argmax(Q[s, :])
+
+            s_next, r, done = env.step(a)
+            episode_reward += r
+
+            td_error = r + gamma * np.max(Q[s_next, :]) - Q[s, a]
+            Q[s, a] += alpha * td_error
+
+            s = s_next
+
+        returns.append(episode_reward)
+
+    V = np.max(Q, axis=1)
+    policy = np.argmax(Q, axis=1)
+    return V, policy, returns
+
 env = discrete_pendulum.Pendulum()
 
 # Plot 1 - Return vs. Episodes

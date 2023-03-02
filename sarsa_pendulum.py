@@ -41,6 +41,39 @@ def sarsa(pendulum, alpha=0.1, gamma=0.95, epsilon=0.1, num_episodes=100):
     #policy = np.argmax(q_values, axis=1)
     return [max(q_values[s]) for s in range(pendulum.num_states)], returns
 
+def sarsa_TD(pendulum, alpha=0.1, gamma=0.95, epsilon=0.1, num_episodes=100):
+    q_values = [[0.0 for _ in range(pendulum.num_actions)] for _ in range(pendulum.num_states)]
+    values = np.zeros(pendulum.num_states)
+    returns = []
+    for episode in range(num_episodes):
+        state = pendulum.reset()
+        action = None
+        done = False
+        total_reward = 0
+        while not done:
+            if random.random() < epsilon:
+                action = random.randrange(pendulum.num_actions)
+            else:
+                action = max(range(pendulum.num_actions), key=lambda a: q_values[state][a])
+            next_state, reward, done = pendulum.step(action)
+            total_reward += reward
+            next_action = None
+            if not done:
+                if random.random() < epsilon:
+                    next_action = random.randrange(pendulum.num_actions)
+                else:
+                    next_action = max(range(pendulum.num_actions), key=lambda a: q_values[next_state][a])
+                td_target = reward + gamma * values[next_state]
+            else:
+                td_target = reward
+            td_error = td_target - values[state]
+            values[state] += alpha * td_error
+            state = next_state
+            action = next_action
+        returns.append(total_reward)
+
+    return values, returns
+
 sarsa_returns = sarsa(pendulum, num_episodes=500)
 
 # Plot 1 - Return vs. Episodes
