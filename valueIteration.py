@@ -9,7 +9,6 @@ class ValueIteration():
         self.gamma = gamma
         self.threshold = threshold
 
-        # Initialize the value function to zeros
         self.values = np.zeros(grid_world.num_states)
 
     def value_iteration(self):
@@ -28,6 +27,7 @@ class ValueIteration():
                     max_action_value = max(max_action_value, action_value)
                 self.values[s] = max_action_value
                 delta_diff = abs(v - self.values[s])
+                #print(delta_diff)
                 delta = max(delta, abs(v - self.values[s]))
             delta_list.append(delta_diff)
         return delta_list
@@ -36,13 +36,13 @@ class ValueIteration():
 
 grid_world = gridworld.GridWorld()
 
-vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-4)
+vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-8)
 vi.value_iteration()
-print(vi.values.reshape(5,5))
+#print(vi.values.reshape(5,5))
 
-grid_world_vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-4)
+grid_world_vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-8)
 
-num_iterations = 100
+num_iterations = 50
 mean_values = []
 
 for i in range(num_iterations):
@@ -53,13 +53,15 @@ for i in range(num_iterations):
 #print(range(num_iterations))
 #print(mean_values)
 
+print(len(mean_values))
+
 plt.plot(range(num_iterations), mean_values)
 plt.xlabel('Number of Iterations')
 plt.ylabel('Mean Value Function')
-plt.title('Mean Value Function vs. Number of Iterations')
+plt.title('Value Iteration Method')
 #plt.ylim(0, 40)
 time.sleep(40)
-plt.savefig('figures/gridworld/vi_iter_vs_valfn.png')
+plt.savefig('figures/gridworld/vi_valfn_vs_iter.png')
 #plt.show()
 
 """ # Plot 2 - Error vs. Iterations
