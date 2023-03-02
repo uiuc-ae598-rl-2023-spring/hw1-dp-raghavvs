@@ -62,7 +62,7 @@ time.sleep(40)
 plt.savefig('figures/gridworld/vi_iter_vs_valfn.png')
 #plt.show()
 
-# Plot 2 - Error vs. Iterations
+""" # Plot 2 - Error vs. Iterations
 
 vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-4)
 
@@ -76,7 +76,7 @@ plt.ylabel('Error')
 plt.title('Error vs. Number of Iterations')
 time.sleep(40)
 plt.savefig('figures/gridworld/vi_iter_vs_error.png')
-#plt.show()
+#plt.show() """
 
 """
 Output:

@@ -49,7 +49,6 @@ class PolicyIteration:
 
     def train(self):
         V = np.zeros(self.env.num_states)
-        V_list = []
         num_iterations_list = []
         delta_list = [] 
         while True:
@@ -57,28 +56,51 @@ class PolicyIteration:
             num_iterations_list.append(num_iterations)
             delta_list.extend(delta) 
             policy_stable = self.policy_improvement(V, self.policy)
-            V_list.append(V.copy())
             if policy_stable:
                 total_iterations = sum(num_iterations_list)
-                return V_list, self.policy, total_iterations, delta_list
+                return V, self.policy, total_iterations, delta_list
+
+    def plot_trajectory(self, start_state):
+        state = start_state
+        states = [state]
+        rewards = [self.env.r(state, np.argmax(self.policy[state]))]
+        while not self.env.is_terminal(state):
+            state, reward = self.env.step(state, np.argmax(self.policy[state]))
+            states.append(state)
+            rewards.append(reward)
+        plt.plot(states)
+        plt.title(f'Trajectory from state {start_state}')
+        plt.xlabel('Time steps')
+        plt.ylabel('States')
+        plt.show()
+
+    def plot_policy(self):
+        plt.figure(figsize=(5,5))
+        ax = plt.gca()
+        ax.set_xticks(np.arange(5))
+        ax.set_yticks(np.arange(5))
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.grid(color='k', linestyle='-', linewidth=2)
+        for i in range(5):
+            for j in range(5):
+                s = i * 5 + j
+                a = np.argmax(self.policy[s])
+                if self.env.is_terminal(s):
+                    continue
+                if a == 0:
+                    plt.arrow(j + 0.5, i + 0.1, 0, 0.8, head_width=0.1, head_length=0.1, fc='k', ec='k')
+                elif a == 1:
+                    plt.arrow(j + 0.5, i + 0.9, 0, -0.8, head_width=0.1, head_length=0.1, fc='k', ec='k')
+                elif a == 2:
+                    plt.arrow(j + 0.1, i + 0.5, 0.8, 0, head_width=0.1, head_length=0.1, fc='k', ec='k')
+                elif a == 3:
+                    plt.arrow(j + 0.9, i + 0.5, -0.8, 0, head_width=0.1, head_length=0.1, fc='k', ec='k')
+        plt.show()
 
 env = gridworld.GridWorld()
 
-pi = PolicyIteration(env)
+agent = PolicyIteration(env)
+V, policy, total_iterations, delta_list = agent.train()
+agent.plot_policy()
 
-start_time = time.time()
-V_list, policy, total_iterations, delta_list = pi.train()
-end_time = time.time()
-training_time = end_time - start_time
-
-fig, ax = plt.subplots()
-for i, V in enumerate(V_list):
-    ax.plot(np.arange(env.num_states), V, label=f"iteration {i+1}")
-ax.set_xlabel("State")
-ax.set_ylabel("Value Function")
-ax.legend()
-plt.savefig('figures/gridworld/pi_valfn_vs_iter.png')
-plt.show()
-
-print(f'Total training time: {training_time:.2f} seconds')
-print(f'Total number of iterations: {total_iterations}')
