@@ -4,13 +4,13 @@ import gridworld
 import time
 
 class PolicyIteration:
-    def __init__(self, env, gamma=0.95):
+    def __init__(self, env, gamma, theta):
         self.env = env
         self.gamma = gamma
+        self.theta = 1e-8
         self.policy = np.ones([env.num_states, env.num_actions]) / env.num_actions
 
     def policy_evaluation(self, V, policy):
-        theta = 1e-8
         num_iterations = 0
         vmv = []
         while True:
@@ -29,7 +29,7 @@ class PolicyIteration:
                 vmv.append(V_mean)
             num_iterations += 1
             delta_list.append(delta)
-            if delta < theta:
+            if delta < self.theta:
                 break
         return num_iterations, delta_list, vmv
 

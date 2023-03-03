@@ -4,26 +4,26 @@ import gridworld
 import time
 
 class ValueIteration():
-    def __init__(self, grid_world, gamma, threshold):
-        self.grid_world = grid_world
+    def __init__(self, env, gamma, theta):
+        self.env = env
         self.gamma = gamma
-        self.threshold = threshold
+        self.theta = theta
 
-        self.values = np.zeros(grid_world.num_states)
+        self.values = np.zeros(env.num_states)
 
     def value_iteration(self):
         delta = np.inf
-        while delta > self.threshold:
+        while delta > self.theta:
             delta = 0
             delta_diff = 0
             delta_list = []
-            for s in range(self.grid_world.num_states):
+            for s in range(self.env.num_states):
                 v = self.values[s]
                 max_action_value = -np.inf
-                for a in range(self.grid_world.num_actions):
+                for a in range(self.env.num_actions):
                     action_value = 0
-                    for s1 in range(self.grid_world.num_states):
-                        action_value += self.grid_world.p(s1, s, a) * (self.grid_world.r(s, a) + self.gamma * self.values[s1])
+                    for s1 in range(self.env.num_states):
+                        action_value += self.env.p(s1, s, a) * (self.env.r(s, a) + self.gamma * self.values[s1])
                     max_action_value = max(max_action_value, action_value)
                 self.values[s] = max_action_value
                 delta_diff = abs(v - self.values[s])
@@ -34,20 +34,20 @@ class ValueIteration():
 
 # Plot 1 - Value function vs. Iterations
 
-grid_world = gridworld.GridWorld()
+env = gridworld.GridWorld()
 
-vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-8)
+vi = ValueIteration(env, gamma=0.95, theta=1e-8)
 vi.value_iteration()
 #print(vi.values.reshape(5,5))
 
-grid_world_vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-8)
+env_vi = ValueIteration(env, gamma=0.95, theta=1e-8)
 
 num_iterations = 50
 mean_values = []
 
 for i in range(num_iterations):
-    grid_world_vi.value_iteration()
-    mean_value = np.mean(grid_world_vi.values)
+    env_vi.value_iteration()
+    mean_value = np.mean(env_vi.values)
     mean_values.append(mean_value)
 
 #print(range(num_iterations))
@@ -66,7 +66,7 @@ plt.savefig('figures/gridworld/vi_valfn_vs_iter.png')
 
 """ # Plot 2 - Error vs. Iterations
 
-vi = ValueIteration(grid_world, gamma=0.95, threshold=1e-4)
+vi = ValueIteration(env, gamma=0.95, theta=1e-4)
 
 delta_list = vi.value_iteration()
 
