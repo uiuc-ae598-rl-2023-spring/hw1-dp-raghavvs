@@ -70,19 +70,15 @@ class PolicyIteration:
 ######## Value Iteration ########
 
 class ValueIteration():
-    def __init__(self, env, gamma, threshold):
+    def __init__(self, env, gamma=1.0, theta=0.0001):
         self.env = env
         self.gamma = gamma
-        self.threshold = threshold
+        self.theta = theta
         self.values = np.zeros(env.num_states)
 
     def value_iteration(self):
-        delta = np.inf
-        while delta > self.threshold:
+        while True:
             delta = 0
-            delta_diff = 0
-            delta_list = []
-            policy_star = []
             for s in range(self.env.num_states):
                 v = self.values[s]
                 max_action_value = -np.inf
@@ -92,11 +88,20 @@ class ValueIteration():
                         action_value += self.env.p(s1, s, a) * (self.env.r(s, a) + self.gamma * self.values[s1])
                     max_action_value = max(max_action_value, action_value)
                 self.values[s] = max_action_value
-                policy_star.append(np.argmax(max_action_value))
-                delta_diff = abs(v - self.values[s])
                 delta = max(delta, abs(v - self.values[s]))
-            delta_list.append(delta_diff)
-        return delta_list, policy_star
+            if delta < self.theta:
+                break
+        policy = np.zeros(self.env.num_states, dtype=int)
+        for s in range(self.env.num_states):
+            max_action_value = -np.inf
+            for a in range(self.env.num_actions):
+                action_value = 0
+                for s1 in range(self.env.num_states):
+                    action_value += self.env.p(s1, s, a) * (self.env.r(s, a) + self.gamma * self.values[s1])
+                if action_value > max_action_value:
+                    max_action_value = action_value
+                    policy[s] = a
+        return self.values, policy
 
 ######## SARSA ########
 
