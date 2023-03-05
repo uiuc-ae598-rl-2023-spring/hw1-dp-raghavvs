@@ -70,7 +70,7 @@ class PolicyIteration:
 ######## Value Iteration ########
 
 class ValueIteration():
-    def __init__(self, env, gamma=1.0, theta=0.0001):
+    def __init__(self, env, gamma, theta):
         self.env = env
         self.gamma = gamma
         self.theta = theta
@@ -103,79 +103,55 @@ class ValueIteration():
                     policy[s] = a
         return self.values, policy
 
-######## SARSA ########
-
-def sarsa(env, alpha=0.1, gamma=0.95, epsilon=0.1, num_episodes=100):
-    q_values = [[0.0 for _ in range(env.num_actions)] for _ in range(env.num_states)]
-    returns = []
-    for episode in range(num_episodes):
-        state = env.reset()
-        action = None
-        done = False
-        total_reward = 0
-        while not done:
-            if random.random() < epsilon:
-                action = random.randrange(env.num_actions)
-            else:
-                action = max(range(env.num_actions), key=lambda a: q_values[state][a])
-            next_state, reward, done = env.step(action)
-            total_reward += reward
-            next_action = None
-            if not done:
-                if random.random() < epsilon:
-                    next_action = random.randrange(env.num_actions)
-                else:
-                    next_action = max(range(env.num_actions), key=lambda a: q_values[next_state][a])
-                td_error = reward + gamma * q_values[next_state][next_action] - q_values[state][action]
-            else:
-                td_error = reward - q_values[state][action]
-            q_values[state][action] += alpha * td_error
-            state = next_state
-            action = next_action
-        returns.append(total_reward)
-
-    return [max(q_values[s]) for s in range(env.num_states)], returns
-
 ######## SARSA TD(0) ########
 
-def sarsa_TD(env, alpha=0.1, gamma=0.95, epsilon=0.1, num_episodes=100):
-    q_values = [[0.0 for _ in range(env.num_actions)] for _ in range(env.num_states)]
-    values = np.zeros(env.num_states)
-    returns = []
-    for episode in range(num_episodes):
+def epsilon_greedy_policy(env, Q, state, epsilon):
+    if np.random.uniform(0, 1) < epsilon:
+        return np.random.choice(range(env.num_actions))
+    else:
+        return np.argmax(Q[state, :])
+    
+def TD0(env, policy, alpha, gamma, total_episodes):
+    V = np.zeros(env.num_states)
+    for eps in range(total_episodes):
+        s = env.reset()
+        t = 0
+        while t < env.max_num_steps:
+            a = policy[s]
+            s1, reward, done = env.step(a)
+            target  = reward + gamma*V[s1]
+            V[s] += alpha * (target - V[s])
+            s = s1
+            t += 1
+            if done:
+                break
+    return V
+
+def sarsa(env, alpha, epsilon, gamma, num_episodes):
+    Q = np.zeros((env.num_states, env.num_actions))
+    Q_list = []
+    rewards = []
+    for i in range(num_episodes):
         state = env.reset()
-        action = None
+        action = epsilon_greedy_policy(env, Q, state, epsilon)
         done = False
-        total_reward = 0
+        episode_reward = 0
         while not done:
-            if random.random() < epsilon:
-                action = random.randrange(env.num_actions)
-            else:
-                action = max(range(env.num_actions), key=lambda a: q_values[state][a])
             next_state, reward, done = env.step(action)
-            total_reward += reward
-            next_action = None
-            if not done:
-                if random.random() < epsilon:
-                    next_action = random.randrange(env.num_actions)
-                else:
-                    next_action = max(range(env.num_actions), key=lambda a: q_values[next_state][a])
-                td_target = reward + gamma * values[next_state]
-            else:
-                td_target = reward
-            td_error = td_target - values[state]
-            values[state] += alpha * td_error
+            next_action = epsilon_greedy_policy(env, Q, next_state, epsilon)
+            Q[state, action] += alpha * (reward + gamma * Q[next_state, next_action] - Q[state, action])
             state = next_state
             action = next_action
-        returns.append(total_reward)
+            episode_reward += reward
+        Q_list.append(np.mean(np.max(Q, axis = 1))) 
+        rewards.append(episode_reward)
+    return Q, Q_list, rewards
 
-    return values, returns
+######## Q-Learning TD(0) ########
 
-######## Q-Learning ########
-
-def q_learning(env, num_episodes, alpha, gamma, epsilon):
+def q_learning(env, alpha, epsilon, gamma, num_episodes):
     Q = np.zeros((env.num_states, env.num_actions))
-
+    Q_list = []
     returns = []
     for i in range(num_episodes):
         s = env.reset()
@@ -195,37 +171,8 @@ def q_learning(env, num_episodes, alpha, gamma, epsilon):
             s = s_next
 
         returns.append(episode_reward)
+        Q_list.append(np.mean(np.max(Q, axis = 1)))
 
     V = np.max(Q, axis=1)
     policy = np.argmax(Q, axis=1)
-    return Q, V, policy, returns
-
-######## Q-Learning TD(0) ########
-
-def q_learning_TD(env, num_episodes, alpha, gamma, epsilon):
-    Q = np.zeros((env.num_states, env.num_actions))
-
-    returns = []
-    for i in range(num_episodes):
-        s = env.reset()
-        done = False
-        episode_reward = 0
-        while not done:
-            if np.random.uniform() < epsilon:
-                a = np.random.choice(env.num_actions)
-            else:
-                a = np.argmax(Q[s, :])
-
-            s_next, r, done = env.step(a)
-            episode_reward += r
-
-            td_error = r + gamma * np.max(Q[s_next, :]) - Q[s, a]
-            Q[s, a] += alpha * td_error
-
-            s = s_next
-
-        returns.append(episode_reward)
-
-    V = np.max(Q, axis=1)
-    policy = np.argmax(Q, axis=1)
-    return V, policy, returns
+    return Q, Q_list, V, policy, returns

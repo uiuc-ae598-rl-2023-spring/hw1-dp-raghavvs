@@ -31,7 +31,6 @@ plt.plot(range(25), vmv)
 plt.xlabel('Iterations')
 plt.ylabel('Mean value function')
 plt.title('Policy Iteration - Gridworld - Value function')
-plt.grid()
 plt.savefig('figures/gridworld/pi_valfn_vs_iter.png')
 #plt.show()
 
@@ -42,7 +41,6 @@ plt.plot(log['t'], log['s'], '-o')
 plt.plot(log['t'][:-1], log['a'])
 plt.plot(log['t'][:-1], log['r'])
 plt.title('Policy Iteration - Gridworld - Trajectory')
-plt.grid()
 plt.legend(['s', 'a', 'r'])
 plt.savefig('figures/gridworld/pi_policy_vs_trajec.png')
 #plt.show
@@ -83,55 +81,138 @@ plt.plot(log['t'], log['s'], '-o')
 plt.plot(log['t'][:-1], log['a'])
 plt.plot(log['t'][:-1], log['r'])
 plt.title('Policy Iteration - Gridworld - Trajectory')
-plt.grid()
 plt.legend(['s', 'a', 'r'])
 plt.savefig('figures/gridworld/vi_policy_vs_trajec.png')
 #plt.show
 
+####### Model Initialization ########
+
+num_episodes = 500
+gamma = 0.95
+epsilons = [0, 0.2, 0.4, 0.6, 0.8, 1]
+alphas = [0.2, 0.4, 0.5, 0.6, 0.8, 1]
+alpha = 0.1
+
 ######## SARSA ########
 
-# Plot 1 - Return vs. Episodes
-num_episodes = 500
 # Train the agent
 start_time = time.time()
-_, returns = algorithms.sarsa(env, num_episodes=num_episodes)
+Q, Q_list, _ = algorithms.sarsa(env, alpha=0.1, epsilon=0.1, gamma=0.95, num_episodes=500)
 end_time = time.time()
 print(f'SARSA for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
 
+policy= np.argmax(Q, axis = 1)
+
+# TD(0) evaluation
+V = algorithms.TD0(env, policy, alpha=0.1, gamma=0.95, total_episodes=500)
+title = r"$\alpha = {}, \gamma = {}$".format(alpha, gamma)
+
+# Plot 1 - SARSA Learning curve plot
+plots.plot_v_episodes(Q_list, "SARSA", "Number of episodes", "Mean Q", "Gridworld, " + title, 'r')
+plt.savefig("figures/gridworld/sarsa_learning_curve.png")
+
+# Plot 2 - SARSA State value function plot
+plots.plot_v_episodes(Q, "SARSA", "State", r"$V(s)$", r"Gridworld, $V^{*}(s)$, TD(0), " + title, 'r')
+plt.savefig("figures/gridworld/sarsa_state_value.png")
+
+# Plot 3 - SARSA Policy plot
+plots.plot_v_episodes(policy, "SARSA", "State", "$\pi(s)$", r"Gridworld, $\pi^{*}$, " + title, 'r')
+plt.savefig("figures/gridworld/sarsa_policy.png")
+
+# Plot 4 - SARSA Learning Curves for Different Alpha Values
+v_name   = r"$\alpha = $"
 plt.figure(figsize = (8, 6))
-plt.plot(range(num_episodes), returns)
-plt.xlabel('Episode')
-plt.ylabel('Return')
-plt.title('SARSA Learning Curve')
-plt.savefig('figures/gridworld/sarsa_return_vs_episodes.png')
-plt.show()
+for alpha in alphas:    
+    _, Q_list, _ = algorithms.sarsa(env, alpha, epsilon=0.1, gamma=0.95, num_episodes=500)
+    plots.plot_q_episodes(Q_list, alpha, v_name)
+plt.xlabel("Number of episodes")
+plt.ylabel("Mean Value Function")
+plt.title("SARSA -  Gridworld, "  + r"$\epsilon = 0.1$, " + "$\gamma = {}$".format(gamma))
+plt.legend()
+plt.savefig("figures/gridworld/sarsa_learning_curves_alpha2.png")
+#plt.show()
 
-# Plot 2 - SARSA Learning Curves for Different Epsilon Values
-epsilons = [0.1, 0.2, 0.3, 0.4, 0.5]
+# Plot 5 - SARSA Learning Curves for Different Epsilon Values
+v_name   = r"$\epsilon = $"
+plt.figure(figsize=(8, 6))
+for epsilon in epsilons:    
+    _, Q_list, _ = algorithms.sarsa(env, alpha, epsilon, gamma=0.95, num_episodes=500)
+    plots.plot_q_episodes(Q_list, epsilon, v_name)
+epsilon = np.arange(len(Q_list)) + 1
+plt.plot(epsilon, Q_list)
+plt.xlabel("Number of episodes")
+plt.ylabel("Mean Value Function")
+plt.title("SARSA, Gridworld, "  + r"$\alpha = {}$, $\gamma = {}$".format(alpha, gamma))
+plt.legend()
+plt.savefig("figures/gridworld/sarsa_learning_curves_epsilon2.png")
+#plt.show()
 
+# Plot 6 - SARSA Policy and trajectory
 plt.figure(figsize = (8, 6))
-fig, ax = plt.subplots()
-for epsilon in epsilons:
-    _, returns = algorithms.sarsa(env, epsilon=epsilon, num_episodes=num_episodes)
-    ax.plot(range(num_episodes), returns, label=f'epsilon={epsilon}')
-ax.legend()
-ax.set_xlabel('Episode')
-ax.set_ylabel('Return')
-ax.set_title('SARSA Learning Curves for Different Epsilon Values')
-plt.savefig('figures/gridworld/sarsa_learning_curves_epsilon.png')
-plt.show()
+log = plots.trajectory(env, policy)
+plt.plot(log['t'], log['s'], '-o')
+plt.plot(log['t'][:-1], log['a'])
+plt.plot(log['t'][:-1], log['r'])
+plt.title('SARSA - Gridworld - Trajectory')
+plt.legend(['s', 'a', 'r'])
+plt.savefig('figures/gridworld/sarsa_policy_vs_trajec.png')
+#plt.show
 
-# Plot 3 - SARSA Learning Curves for Different Alpha Values 
-alphas = [0.1, 0.2, 0.3, 0.4, 0.5]
+######## Q-Learning ########
 
+# Train the agent
+start_time = time.time()
+Q, Q_list, _, policy, _ = algorithms.q_learning(env, alpha=0.1, epsilon=0.1, gamma=0.95, num_episodes=500)
+end_time = time.time()
+print(f'Q-Learning for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
+
+# Plot 1 - Q-Learning Learning curve plot
+plots.plot_v_episodes(Q_list, "Q-Learning", "Number of episodes", "Mean Q", "Gridworld, " + title, 'r')
+plt.savefig("figures/gridworld/ql_learning_curve.png")
+
+# Plot 2 - Q-Learning State value function plot
+plots.plot_v_episodes(Q, "Q-Learning", "State", r"$V(s)$", r"Gridworld, $V^{*}(s)$, TD(0), " + title, 'r')
+plt.savefig("figures/gridworld/ql_state_value.png")
+
+# Plot 3 - Q-Learning Policy plot
+plots.plot_v_episodes(policy, "Q-Learning", "State", "$\pi(s)$", r"Gridworld, $\pi^{*}$, " + title, 'r')
+plt.savefig("figures/gridworld/ql_policy.png")
+
+# Plot 4 - Q-Learning Learning Curves for Different Alpha Values
+v_name   = r"$\alpha = $"
 plt.figure(figsize = (8, 6))
-fig, ax = plt.subplots()
-for alpha in alphas:
-    _, returns = algorithms.sarsa(env, alpha=alpha, num_episodes=num_episodes)
-    ax.plot(range(num_episodes), returns, label=f'alpha={alpha}')
-ax.legend()
-ax.set_xlabel('Episode')
-ax.set_ylabel('Return')
-ax.set_title('SARSA Learning Curves for Different Alpha Values')
-plt.savefig('figures/gridworld/sarsa_learning_curves_alpha.png')
-plt.show()
+for alpha in alphas:    
+    _, Q_list, _, _, _ = algorithms.q_learning(env, alpha, epsilon=0.1, gamma=0.95, num_episodes=500)
+    plots.plot_q_episodes(Q_list, alpha, v_name)
+plt.xlabel("Number of episodes")
+plt.ylabel("Mean Value Function")
+plt.title("Q-Learning -  Gridworld, "  + r"$\epsilon = 0.1$, " + "$\gamma = {}$".format(gamma))
+plt.legend()
+plt.savefig("figures/gridworld/ql_learning_curves_alpha2.png")
+#plt.show()
+
+# Plot 5 - Q-Learning Learning Curves for Different Epsilon Values
+v_name   = r"$\epsilon = $"
+plt.figure(figsize=(8, 6))
+for epsilon in epsilons:    
+    _, Q_list, _, _, _ = algorithms.q_learning(env, alpha, epsilon, gamma=0.95, num_episodes=500)
+    plots.plot_q_episodes(Q_list, epsilon, v_name)
+epsilon = np.arange(len(Q_list)) + 1
+plt.plot(epsilon, Q_list)
+plt.xlabel("Number of episodes")
+plt.ylabel("Mean Value Function")
+plt.title("Q-Learning, Gridworld, "  + r"$\alpha = {}$, $\gamma = {}$".format(alpha, gamma))
+plt.legend()
+plt.savefig("figures/gridworld/ql_learning_curves_epsilon2.png")
+#plt.show()
+
+# Plot 6 - Q-Learning Policy and trajectory
+plt.figure(figsize = (8, 6))
+log = plots.trajectory(env, policy)
+plt.plot(log['t'], log['s'], '-o')
+plt.plot(log['t'][:-1], log['a'])
+plt.plot(log['t'][:-1], log['r'])
+plt.title('Q-Learning - Gridworld - Trajectory')
+plt.legend(['s', 'a', 'r'])
+plt.savefig('figures/gridworld/ql_policy_vs_trajec.png')
+#plt.show
