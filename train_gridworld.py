@@ -19,8 +19,8 @@ agent = algorithms.PolicyIteration(env, gamma)
 # Train the agent
 start_time = time.time()
 V_list, policy, total_iterations, _, vmv, policy_star = agent.train()
-end_time = time.time()
-print(f'Policy iteration for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
+#end_time = time.time()
+#print(f'Policy iteration for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
 
 # Plot 1 - Mean value function versus number of iterations
 mean_value = np.mean(np.array(V_list), axis=1)
@@ -31,7 +31,7 @@ plt.plot(range(25), vmv)
 plt.xlabel('Iterations')
 plt.ylabel('Mean value function')
 plt.title('Policy Iteration - Gridworld - Value function')
-plt.savefig('figures/gridworld/pi_valfn_vs_iter.png')
+plt.savefig('figures/gridworld/g_pi_valfn_vs_iter.png')
 #plt.show()
 
 # Plot 2 - Policy and trajectory
@@ -42,7 +42,7 @@ plt.plot(log['t'][:-1], log['a'])
 plt.plot(log['t'][:-1], log['r'])
 plt.title('Policy Iteration - Gridworld - Trajectory')
 plt.legend(['s', 'a', 'r'])
-plt.savefig('figures/gridworld/pi_policy_vs_trajec.png')
+plt.savefig('figures/gridworld/g_pi_policy_vs_trajec.png')
 #plt.show
 
 ######## Value Iteration ########
@@ -50,10 +50,10 @@ plt.savefig('figures/gridworld/pi_policy_vs_trajec.png')
 agent = algorithms.ValueIteration(env, gamma, theta)
 
 # Train the agent
-start_time = time.time()
+#start_time = time.time()
 _, policy = agent.value_iteration()
-end_time = time.time()
-print(f'Value iteration for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
+#end_time = time.time()
+#print(f'Value iteration for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
 
 # Plot 1 - Mean value function versus number of iterations
 num_iterations = 50
@@ -71,7 +71,7 @@ plt.plot(range(num_iterations), mean_values)
 plt.xlabel('Number of Iterations')
 plt.ylabel('Mean Value Function')
 plt.title('Value Iteration Method')
-plt.savefig('figures/gridworld/vi_valfn_vs_iter.png')
+plt.savefig('figures/gridworld/g_vi_valfn_vs_iter.png')
 #plt.show()
 
 # Plot 2 - Policy and trajectory
@@ -82,7 +82,7 @@ plt.plot(log['t'][:-1], log['a'])
 plt.plot(log['t'][:-1], log['r'])
 plt.title('Policy Iteration - Gridworld - Trajectory')
 plt.legend(['s', 'a', 'r'])
-plt.savefig('figures/gridworld/vi_policy_vs_trajec.png')
+plt.savefig('figures/gridworld/g_vi_policy_vs_trajec.png')
 #plt.show
 
 ####### Model Initialization ########
@@ -96,10 +96,7 @@ alpha = 0.1
 ######## SARSA ########
 
 # Train the agent
-start_time = time.time()
 Q, Q_list, _ = algorithms.sarsa(env, alpha=0.1, epsilon=0.1, gamma=0.95, num_episodes=500)
-end_time = time.time()
-print(f'SARSA for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
 
 policy= np.argmax(Q, axis = 1)
 
@@ -109,15 +106,15 @@ title = r"$\alpha = {}, \gamma = {}$".format(alpha, gamma)
 
 # Plot 1 - SARSA Learning curve plot
 plots.plot_v_episodes(Q_list, "SARSA", "Number of episodes", "Mean Q", "Gridworld, " + title, 'r')
-plt.savefig("figures/gridworld/sarsa_learning_curve.png")
+plt.savefig("figures/gridworld/g_sarsa_learning_curve.png")
 
 # Plot 2 - SARSA State value function plot
 plots.plot_v_episodes(Q, "SARSA", "State", r"$V(s)$", r"Gridworld, $V^{*}(s)$, TD(0), " + title, 'r')
-plt.savefig("figures/gridworld/sarsa_state_value.png")
+plt.savefig("figures/gridworld/g_sarsa_state_value.png")
 
 # Plot 3 - SARSA Policy plot
 plots.plot_v_episodes(policy, "SARSA", "State", "$\pi(s)$", r"Gridworld, $\pi^{*}$, " + title, 'r')
-plt.savefig("figures/gridworld/sarsa_policy.png")
+plt.savefig("figures/gridworld/g_sarsa_policy.png")
 
 # Plot 4 - SARSA Learning Curves for Different Alpha Values
 v_name   = r"$\alpha = $"
@@ -129,7 +126,7 @@ plt.xlabel("Number of episodes")
 plt.ylabel("Mean Value Function")
 plt.title("SARSA -  Gridworld, "  + r"$\epsilon = 0.1$, " + "$\gamma = {}$".format(gamma))
 plt.legend()
-plt.savefig("figures/gridworld/sarsa_learning_curves_alpha2.png")
+plt.savefig("figures/gridworld/g_sarsa_learning_curves_alpha2.png")
 #plt.show()
 
 # Plot 5 - SARSA Learning Curves for Different Epsilon Values
@@ -144,7 +141,7 @@ plt.xlabel("Number of episodes")
 plt.ylabel("Mean Value Function")
 plt.title("SARSA, Gridworld, "  + r"$\alpha = {}$, $\gamma = {}$".format(alpha, gamma))
 plt.legend()
-plt.savefig("figures/gridworld/sarsa_learning_curves_epsilon2.png")
+plt.savefig("figures/gridworld/g_sarsa_learning_curves_epsilon2.png")
 #plt.show()
 
 # Plot 6 - SARSA Policy and trajectory
@@ -155,28 +152,28 @@ plt.plot(log['t'][:-1], log['a'])
 plt.plot(log['t'][:-1], log['r'])
 plt.title('SARSA - Gridworld - Trajectory')
 plt.legend(['s', 'a', 'r'])
-plt.savefig('figures/gridworld/sarsa_policy_vs_trajec.png')
+plt.savefig('figures/gridworld/g_sarsa_policy_vs_trajec.png')
 #plt.show
 
 ######## Q-Learning ########
 
 # Train the agent
-start_time = time.time()
+#start_time = time.time()
 Q, Q_list, _, policy, _ = algorithms.q_learning(env, alpha=0.1, epsilon=0.1, gamma=0.95, num_episodes=500)
-end_time = time.time()
-print(f'Q-Learning for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
+#end_time = time.time()
+#print(f'Q-Learning for Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')
 
 # Plot 1 - Q-Learning Learning curve plot
 plots.plot_v_episodes(Q_list, "Q-Learning", "Number of episodes", "Mean Q", "Gridworld, " + title, 'r')
-plt.savefig("figures/gridworld/ql_learning_curve.png")
+plt.savefig("figures/gridworld/g_ql_learning_curve.png")
 
 # Plot 2 - Q-Learning State value function plot
 plots.plot_v_episodes(Q, "Q-Learning", "State", r"$V(s)$", r"Gridworld, $V^{*}(s)$, TD(0), " + title, 'r')
-plt.savefig("figures/gridworld/ql_state_value.png")
+plt.savefig("figures/gridworld/g_ql_state_value.png")
 
 # Plot 3 - Q-Learning Policy plot
 plots.plot_v_episodes(policy, "Q-Learning", "State", "$\pi(s)$", r"Gridworld, $\pi^{*}$, " + title, 'r')
-plt.savefig("figures/gridworld/ql_policy.png")
+plt.savefig("figures/gridworld/g_ql_policy.png")
 
 # Plot 4 - Q-Learning Learning Curves for Different Alpha Values
 v_name   = r"$\alpha = $"
@@ -188,7 +185,7 @@ plt.xlabel("Number of episodes")
 plt.ylabel("Mean Value Function")
 plt.title("Q-Learning -  Gridworld, "  + r"$\epsilon = 0.1$, " + "$\gamma = {}$".format(gamma))
 plt.legend()
-plt.savefig("figures/gridworld/ql_learning_curves_alpha2.png")
+plt.savefig("figures/gridworld/g_ql_learning_curves_alpha2.png")
 #plt.show()
 
 # Plot 5 - Q-Learning Learning Curves for Different Epsilon Values
@@ -203,7 +200,7 @@ plt.xlabel("Number of episodes")
 plt.ylabel("Mean Value Function")
 plt.title("Q-Learning, Gridworld, "  + r"$\alpha = {}$, $\gamma = {}$".format(alpha, gamma))
 plt.legend()
-plt.savefig("figures/gridworld/ql_learning_curves_epsilon2.png")
+plt.savefig("figures/gridworld/g_ql_learning_curves_epsilon2.png")
 #plt.show()
 
 # Plot 6 - Q-Learning Policy and trajectory
@@ -214,5 +211,8 @@ plt.plot(log['t'][:-1], log['a'])
 plt.plot(log['t'][:-1], log['r'])
 plt.title('Q-Learning - Gridworld - Trajectory')
 plt.legend(['s', 'a', 'r'])
-plt.savefig('figures/gridworld/ql_policy_vs_trajec.png')
+plt.savefig('figures/gridworld/g_ql_policy_vs_trajec.png')
 #plt.show
+
+end_time = time.time()
+print(f'Gridworld problem - Total time taken: {end_time - start_time:.2f} seconds')

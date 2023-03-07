@@ -1,0 +1,10 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Grid World}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Policy Iteration Method}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Value Iteration Method}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{SARSA}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Q-Learning}{section.2}% 6
+\BOOKMARK [1][-]{section.3}{Simple Pendulum}{}% 7
+\BOOKMARK [2][-]{subsection.3.1}{SARSA}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.2}{Q-Learning}{section.3}% 9
+\BOOKMARK [1][-]{section*.1}{References}{}% 10

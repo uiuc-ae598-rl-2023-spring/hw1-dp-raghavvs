@@ -43,7 +43,7 @@ def plot_v_episodes(Q_list, algo_name, x_label , y_label, title, color):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
-    plt.legend()
+    #plt.legend()
     #plt.show()
 
 def trajectory_p(env, policy):
@@ -60,7 +60,8 @@ def trajectory_p(env, policy):
 
     # Simulate until episode is done
     while not done:
-        a = random.randrange(env.num_actions)
+        #a = random.randrange(env.num_actions)
+        a = policy[s]
         (s, r, done) = env.step(a)
         log['t'].append(log['t'][-1] + 1)
         log['s'].append(s)
